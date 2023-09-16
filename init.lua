@@ -139,4 +139,9 @@ function Cell:getLocation()
 	return (self.x - 1) * self.grid.cellWidth, (self.y - 1) * self.grid.cellHeight
 end
 
+function Grid:setSize(w, h)
+	self.cellWidth  = w
+	self.cellHeight = h
+end
+
 return Grid
