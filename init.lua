@@ -8,7 +8,7 @@
 
 local Grid = {}
 Grid.__index = Grid
-Grid._version = "0.1.21"
+Grid._version = "0.1.22"
 
 local Cell = {}
 Cell.__index = Cell
@@ -138,6 +138,8 @@ end
 function Cell:getLocation()
 	return (self.x - 1) * self.grid.cellWidth, (self.y - 1) * self.grid.cellHeight
 end
+
+function Cell:getPosition() return self.x, self.y end
 
 function Grid:setSize(w, h)
 	self.cellWidth  = w
