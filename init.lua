@@ -89,7 +89,7 @@ function Grid:iterateAdjacent(x, y, diagonals)
 	return function()
 		i = i + 1
 		if i <= #adjacent then
-			return adjacent[i].x, adjacent[i].y, self[adjacent[i].x][adjacent[i].y]
+			return self[adjacent[i].x][adjacent[i].y], adjacent[i].x, adjacent[i].y
 		end
 	end
 end
