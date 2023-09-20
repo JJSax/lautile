@@ -83,8 +83,8 @@ function Grid:iterate()
 	end
 end
 
-function Grid:iterateAdjacent(x, y)
-	local adjacent = self:getAdjacent(x, y)
+function Grid:iterateAdjacent(x, y, diagonals)
+	local adjacent = self:getAdjacent(x, y, diagonals)
 	local i = 0
 	return function()
 		i = i + 1
