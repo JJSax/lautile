@@ -1,4 +1,3 @@
----@meta
 ----------------------------------------
 -- Desc: Generic Grid Library.  This creates a rectangular grid.
 -- By: JJSax
