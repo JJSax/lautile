@@ -1,9 +1,9 @@
+---@deprecated Will be moving to 2.0 once it's feature set is in parity with this.
+----------------------------------------
 ----------------------------------------
 -- Desc: Generic Grid Library.  This creates a rectangular grid.
 -- By: JJSax
 -- Date: 3/1/2023
-----------------------------------------
-
 
 ---@class Grid
 ---@field width number
@@ -25,6 +25,7 @@ Grid._version = "0.1.23"
 local Cell = {}
 Cell.__index = Cell
 
+---@deprecated Will be moving to 2.0 once it's feature set is in parity with this.
 ---@param width number How many cells horizontally
 ---@param height number How many cells vertically
 ---@param properties? table
@@ -125,7 +126,7 @@ end
 
 ---@return integer, integer # The x, y index of the random location
 function Grid:getRandomLocation()
-    return math.random(self.width), math.random(self.height)
+	return math.random(self.width), math.random(self.height)
 end
 
 ---@return Cell The random cell object
@@ -143,24 +144,24 @@ end
 ---@param x integer The x index in Grid
 ---@param y integer The y index in Grid
 function Grid:depthFirstSearch(x, y)
-    local stack = {
-        { x = x, y = y }
-    }
-    local visited = {}
-    while #stack > 0 do
-        local cell = table.remove(stack)
-        if not visited[cell.x] then
-            visited[cell.x] = {}
-        end
-        if not visited[cell.x][cell.y] then
-            visited[cell.x][cell.y] = true
-            local adjacent = self:getAdjacent(cell.x, cell.y)
-            for i = 1, #adjacent do
-                table.insert(stack, adjacent[i])
-            end
-        end
-    end
-    return visited
+	local stack = {
+		{ x = x, y = y }
+	}
+	local visited = {}
+	while #stack > 0 do
+		local cell = table.remove(stack)
+		if not visited[cell.x] then
+			visited[cell.x] = {}
+		end
+		if not visited[cell.x][cell.y] then
+			visited[cell.x][cell.y] = true
+			local adjacent = self:getAdjacent(cell.x, cell.y)
+			for i = 1, #adjacent do
+				table.insert(stack, adjacent[i])
+			end
+		end
+	end
+	return visited
 end
 
 --------------------
