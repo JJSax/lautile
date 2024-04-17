@@ -2,7 +2,7 @@
 
 local Grid = {}
 Grid.__index = Grid
-Grid._VERSION = "2.0.3"
+Grid._VERSION = "2.0.4"
 
 
 --[[
@@ -57,6 +57,9 @@ function Grid.__call(self, x, y)
 	t.x, t.y = x, y
 	if not self.tiles[x] then self.tiles[x] = {} end
 	self.tiles[x][y] = t
+
+	table.insert(self.tileList, t)
+
 	return self.tiles[x][y], false
 end
 
@@ -64,6 +67,7 @@ function Grid.new(tile, width, height, strict) -- strict disallows indexing cell
 	local self = setmetatable({
 		tiles = {},
 		defaultTile = interpretDefault(tile),
+		tileList = {}
 	}, Grid)
 
 	if not width then return self end
@@ -78,6 +82,20 @@ function Grid.new(tile, width, height, strict) -- strict disallows indexing cell
 	self.strict = strict -- after so cell creation can happen
 
 	return self
+end
+
+function Grid:deleteTile(x, y)
+	local t = self:isValidCell(x, y)
+	assert(t, "Attempt to delete a non-existent tile.")
+
+	for k,v in pairs(self.tileList) do --! O(n); will need to rework this
+		if v == t then
+			table.remove(self.tileList, k)
+		end
+	end
+
+	self.tiles[x][y] = nil
+
 end
 
 function Grid:isValidCell(x, y)
@@ -123,8 +141,16 @@ function Grid:iterateAdjacent(x, y, diagonals)
 	end
 end
 
+function Grid:unpack(tile)
+	return tile.x, tile.y
+end
+
+function Grid:getRandomLocation()
+	return self:unpack(self.tileList[math.random(#self.tileList)])
+end
+
 function Grid:getRandomCell()
-	return
+	return self.tileList[math.random(#self.tileList)]
 end
 
 return Grid
