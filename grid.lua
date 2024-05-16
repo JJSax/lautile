@@ -41,8 +41,6 @@ local function interpretDefault(d)
 	end
 end
 
-Grid.__index = Grid
-
 function Grid.__call(self, x, y)
 	expect(x, "number", "x")
 	expect(y, "number", "y")
