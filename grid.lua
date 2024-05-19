@@ -7,7 +7,7 @@
 ---@field _VERSION string The version of the Grid class.
 local Grid = {}
 Grid.__index = Grid
-Grid._VERSION = "2.0.5"
+Grid._VERSION = "2.0.6"
 
 local HERE = (...):gsub('%.[^%.]+$', '')
 local Tile = require(HERE .. ".tile")
@@ -61,6 +61,7 @@ function Grid.new(tile, width, height, strict)
 end
 
 function Grid:deleteTile(x, y)
+	assert(not self.strict, "Attemt to delete a protected tile; strict mode on.")
 	local t = self:isValidCell(x, y)
 	assert(t, "Attempt to delete a non-existent tile.")
 
