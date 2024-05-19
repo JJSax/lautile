@@ -1,43 +1,20 @@
 
-
+---@class Luatile
+---@field tiles table<number, table<number, LTTile>> A 2D array of tiles.
+---@field defaultTile LTTile The default tile to use when none is specified.
+---@field tileList LTTile[] A list of all tiles.
+---@field strict boolean Whether new cell creations can happen.
+---@field _VERSION string The version of the Grid class.
 local Grid = {}
 Grid.__index = Grid
-Grid._VERSION = "2.0.4"
+Grid._VERSION = "2.0.5"
 
-
---[[
-Tiles will have x and y to be it's position in the Grid
-Also width/height will be what is used for 2d operations.
-]]
+local HERE = (...):gsub('%.[^%.]+$', '')
+local Tile = require(HERE .. ".tile")
 
 local function expect(p, exp, name)
 	if type(p) ~= exp then
 		error('param "' .. name .. '" expects type(' .. exp .. ').  Got: ' .. type(p), 2)
-	end
-end
-
-local function clone(t)
-	if type(t) ~= "table" then return t end
-	local output = {}
-	for k, v in pairs(t) do
-		if type(v) == "table" then
-			output[k] = clone(v)
-		else
-			output[k] = v
-		end
-	end
-	return output
-end
-
-local function interpretDefault(d)
-	if type(d) == "table" then
-		return function() return d end
-	elseif type(d) == "function" then
-		return d
-	elseif type(d) == "nil" then
-		return function() return {} end
-	else
-		error("type of tile can only be of type table or function.", 3)
 	end
 end
 
@@ -51,8 +28,7 @@ function Grid.__call(self, x, y)
 
 	assert(not self.strict, "Grid is strict; You cannot index cells that don't exist.")
 
-	local t = self.defaultTile(self, x, y)
-	t.x, t.y = x, y
+	local t = self.defaultTile.new(self, x, y)
 	if not self.tiles[x] then self.tiles[x] = {} end
 	self.tiles[x][y] = t
 
@@ -61,10 +37,12 @@ function Grid.__call(self, x, y)
 	return self.tiles[x][y], false
 end
 
-function Grid.new(tile, width, height, strict) -- strict disallows indexing cells that are oustide w/h
+function Grid.new(tile, width, height, strict)
+	local default = tile or Tile
+	assert(default.new, "Tile object passed require a constructor called 'new'")
 	local self = setmetatable({
 		tiles = {},
-		defaultTile = interpretDefault(tile),
+		defaultTile = default,
 		tileList = {}
 	}, Grid)
 
@@ -93,11 +71,13 @@ function Grid:deleteTile(x, y)
 	end
 
 	self.tiles[x][y] = nil
-
 end
 
+--- Checks if the cell at (x[, y]) is valid.
+--- @param x number The x-coordinate.
+--- @param y number The y-coordinate.
+--- @return table|nil> The tile if it exists, otherwise nil.
 function Grid:isValidCell(x, y)
-	if type(x) == "table" then return x.grid == self end
 	return self.tiles[x] and self.tiles[x][y]
 end
 
