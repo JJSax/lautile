@@ -3,26 +3,24 @@ local Pathfinding = require(HERE..".pathfinding")
 
 local dfs = setmetatable({}, { __index = Pathfinding })
 dfs.__index = dfs
-dfs._VERSION = "0.0.1"
+dfs._VERSION = "0.0.2"
 
-function dfs.new(grid, startTile)
-	return setmetatable(Pathfinding.new(grid, startTile), dfs)
-end
-
-function dfs:run()
-	repeat
-		self:step()
-	until self.complete
+function dfs.new(grid, startTile, target)
+	return setmetatable(Pathfinding.new(grid, startTile, target), dfs)
 end
 
 local function __NULL__(...) end
-for k,v in ipairs({"exploreTile", "markCorrect", "markDeadEnd"}) do
+for k,v in ipairs({"exploreTile", "markDeadEnd"}) do
 	dfs[v] = __NULL__
 end
 
 function dfs:step()
 	if #self.stack > 0 and not self.complete then
 		local currentCell = table.remove(self.stack)
+		if self:isTarget(currentCell) then
+			self.complete = true
+			return self.visited
+		end
 		self.currentTile = currentCell -- the tile object
 		local neighbors = self:getUnvisitedNeighbors(currentCell)
 		if #neighbors > 0 then
@@ -30,7 +28,6 @@ function dfs:step()
 			local nextCell = neighbors[love.math.random(1, #neighbors)]
 			self.visited[nextCell] = true
 			self:exploreTile(nextCell)
-			-- self:markCorrect(currentCell)
 			table.insert(self.stack, nextCell)
 		else
 			self:markDeadEnd(currentCell)
