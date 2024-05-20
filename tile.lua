@@ -13,9 +13,9 @@ function Tile.new(grid, x, y)
 	}, Tile)
 end
 
--- Default neighbor methods assume a lattice graph
+-- Default neighbor methods assume a lattice graph, though may still be useful
 
-function Tile:neighbors()
+function Tile:getNeighbors()
 	return {
 		self.grid:isValidCell(self.x, self.y - 1),
 		self.grid:isValidCell(self.x + 1, self.x),
@@ -24,7 +24,7 @@ function Tile:neighbors()
 	}
 end
 
-function Tile:diagonalNeighbors()
+function Tile:getDiagonalNeighbors()
 	return {
 		self.grid:isValidCell(self.x + 1, self.y - 1),
 		self.grid:isValidCell(self.x + 1, self.y + 1),
@@ -33,7 +33,7 @@ function Tile:diagonalNeighbors()
 	}
 end
 
-function Tile:allNeighbors()
+function Tile:getAllNeighbors()
 	return {
 		self.grid:isValidCell(self.x, self.y - 1),		-- Top
 		self.grid:isValidCell(self.x + 1, self.y),		-- Right

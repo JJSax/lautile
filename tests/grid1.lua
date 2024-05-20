@@ -1,5 +1,6 @@
 
 -- run in terminal in luatile folder
+---@diagnostic disable-next-line: different-requires
 local Grid = require("./grid")
 
 -- Test Grid creation
