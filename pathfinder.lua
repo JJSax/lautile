@@ -1,6 +1,6 @@
 local Pathfinder = {}
 Pathfinder.__index = Pathfinder
-Pathfinder._VERSION = "0.0.3"
+Pathfinder._VERSION = "0.0.4"
 
 function Pathfinder.new(grid, startTile, target)
 	local self = setmetatable({}, Pathfinder)
@@ -10,6 +10,7 @@ function Pathfinder.new(grid, startTile, target)
 	self.visited = {}
 	self.complete = false
 	self.currentTile = startTile
+	self.path = {}
 	return self
 end
 

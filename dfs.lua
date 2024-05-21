@@ -3,12 +3,11 @@ local Pathfinder = require(HERE..".pathfinder")
 
 local dfs = setmetatable({}, { __index = Pathfinder })
 dfs.__index = dfs
-dfs._VERSION = "0.0.5"
+dfs._VERSION = "0.1.0"
 
 function dfs.new(grid, startTile, target)
 	local self = setmetatable(Pathfinder.new(grid, startTile, target), dfs)
 	self.stack = {startTile}
-	self.path = {}
 	return self
 end
 
