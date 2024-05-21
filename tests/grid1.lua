@@ -1,7 +1,7 @@
 
 -- run in terminal in luatile folder
 ---@diagnostic disable-next-line: different-requires
-local Grid = require("./grid")
+local Grid = require("./init")
 
 -- Test Grid creation
 local grid = Grid.new(nil, 5, 5, true)  -- Create a 5x5 grid with strict mode
