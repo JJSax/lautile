@@ -3,7 +3,7 @@ local Pathfinder = require(HERE..".pathfinder")
 
 local dfs = setmetatable({}, { __index = Pathfinder })
 dfs.__index = dfs
-dfs._VERSION = "0.0.3"
+dfs._VERSION = "0.0.4"
 
 function dfs.new(grid, startTile, target)
 	local self = setmetatable(Pathfinder.new(grid, startTile, target), dfs)
@@ -28,7 +28,7 @@ function dfs:step()
 		local neighbors = self:getUnvisitedNeighbors(currentCell)
 		if #neighbors > 0 then
 			table.insert(self.stack, currentCell)
-			local nextCell = neighbors[love.math.random(1, #neighbors)]
+			local nextCell = neighbors[math.random(1, #neighbors)]
 			self.visited[nextCell] = true
 			table.insert(self.stack, nextCell)
 		else
