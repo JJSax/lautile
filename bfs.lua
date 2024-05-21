@@ -3,8 +3,9 @@ local Pathfinder = require(HERE..".pathfinder")
 
 local bfs = setmetatable({}, { __index = Pathfinder })
 bfs.__index = bfs
-bfs._VERSION = "0.1.0"
+bfs._VERSION = "0.1.1"
 
+---Create the bfs
 function bfs.new(grid, startTile, target)
 	local self = setmetatable(Pathfinder.new(grid, startTile, target), bfs)
 	self.queue = {startTile}
@@ -12,12 +13,9 @@ function bfs.new(grid, startTile, target)
 	return self
 end
 
-local function __NULL__(...) end
-for _,v in ipairs({"exploreTile"}) do
-	bfs[v] = __NULL__
-end
-
+---Construct path from the target to start; Use after pathing complete
 function bfs:backtrace()
+	assert(self.complete, "Attempt to backtrace BFS before pathing is complete.")
 	local path = {self.target}
 	while path[#path] ~= self.start do
 		table.insert(path, self.parents[path[#path]])
@@ -31,6 +29,7 @@ function bfs:backtrace()
 	return npath
 end
 
+---Runs Single step through the BFS
 function bfs:step()
 	if #self.queue > 0 and not self.complete then
 		local currentCell = table.remove(self.queue, 1)
@@ -41,6 +40,7 @@ function bfs:step()
 			self:backtrace()
 			return self.visited
 		end
+		if #currentCell:getNeighbors() == 1 then self:markDeadEnd(currentCell) end
 		local neighbors = self:getUnvisitedNeighbors(currentCell)
 		for _, nextCell in ipairs(neighbors) do
 			self.visited[nextCell] = true
@@ -50,17 +50,6 @@ function bfs:step()
 	else
 		self.complete = true
 	end
-end
-
-function bfs:getUnvisitedNeighbors(cell)
-	local neighbors = cell:getNeighbors()
-	local unvisited = {}
-	for _, neighbor in ipairs(neighbors) do
-		if not self.visited[neighbor] then
-			table.insert(unvisited, neighbor)
-		end
-	end
-	return unvisited
 end
 
 return bfs

@@ -10,7 +10,6 @@ Grid.__index = Grid
 Grid._VERSION = "2.0.6"
 
 local HERE = (...):gsub('%.[^%.]+$', '')
-print(HERE)
 local Tile = require(HERE .. ".tile")
 
 local function expect(p, exp, name)

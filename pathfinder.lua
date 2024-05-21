@@ -1,7 +1,8 @@
 local Pathfinder = {}
 Pathfinder.__index = Pathfinder
-Pathfinder._VERSION = "0.0.4"
+Pathfinder._VERSION = "0.0.5"
 
+---Common initialization of pathfinding algorithms.
 function Pathfinder.new(grid, startTile, target)
 	local self = setmetatable({}, Pathfinder)
 	self.grid = grid
@@ -14,22 +15,39 @@ function Pathfinder.new(grid, startTile, target)
 	return self
 end
 
+--- Step through pathfinding algorithm.  Should be implemented elsewhere.
 function Pathfinder:step()
 	error("Pathfinder:step() should be implemented by subclasses.")
 end
 
+---Run pathfinding algorithm until it completes.
 function Pathfinder:run()
 	repeat
 		self:step()
 	until self.complete
 end
 
-function Pathfinder:validNeighbor(currentTile, nx, ny, dir)
-	return self.grid:isValidCell(nx, ny) and not (self.visited[ny] and self.visited[ny][nx])
-end
-
+---Returns if tile == target
 function Pathfinder:isTarget(tile)
 	return tile == self.target
+end
+
+--- returns all the tiles that tile:getNeighbors() passes, then culls ones that were visited.
+function Pathfinder:getUnvisitedNeighbors(cell)
+	local neighbors = cell:getNeighbors()
+	local unvisited = {}
+	for _, neighbor in ipairs(neighbors) do
+		if not self.visited[neighbor] then
+			table.insert(unvisited, neighbor)
+		end
+	end
+	return unvisited
+end
+
+---Create blank functions for common use in cubclassess.
+local function __NULL__(...) end
+for _,v in ipairs({"exploreTile", "markDeadEnd"}) do
+	Pathfinder[v] = __NULL__
 end
 
 return Pathfinder

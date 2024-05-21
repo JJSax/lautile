@@ -3,19 +3,16 @@ local Pathfinder = require(HERE..".pathfinder")
 
 local dfs = setmetatable({}, { __index = Pathfinder })
 dfs.__index = dfs
-dfs._VERSION = "0.1.0"
+dfs._VERSION = "0.1.1"
 
+---Create the dfs
 function dfs.new(grid, startTile, target)
 	local self = setmetatable(Pathfinder.new(grid, startTile, target), dfs)
 	self.stack = {startTile}
 	return self
 end
 
-local function __NULL__(...) end
-for _,v in ipairs({"exploreTile", "markDeadEnd"}) do
-	dfs[v] = __NULL__
-end
-
+---Runs Single step through the DFS
 function dfs:step()
 	if #self.stack > 0 and not self.complete then
 		local currentCell = table.remove(self.stack)
@@ -39,17 +36,6 @@ function dfs:step()
 	else
 		self.complete = true
 	end
-end
-
-function dfs:getUnvisitedNeighbors(cell)
-	local neighbors = cell:getNeighbors()
-	local unvisited = {}
-	for k,v in ipairs(neighbors) do
-		if not self.visited[v] then
-			table.insert(unvisited, v)
-		end
-	end
-	return unvisited
 end
 
 return dfs

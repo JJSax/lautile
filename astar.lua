@@ -3,8 +3,9 @@ local Pathfinder = require(HERE..".pathfinder")
 
 local astar = setmetatable({}, { __index = Pathfinder })
 astar.__index = astar
-astar._VERSION = "0.0.4"
+astar._VERSION = "0.0.5"
 
+---Create the astar
 function astar.new(grid, startTile, target)
 	local self = setmetatable(Pathfinder.new(grid, startTile, target), astar)
 	self.parents = {}
@@ -30,11 +31,7 @@ function astar.new(grid, startTile, target)
 	return self
 end
 
-local function __NULL__(...) end
-for _,v in ipairs({"exploreTile", "markDeadEnd"}) do
-	astar[v] = __NULL__
-end
-
+---Construct path from the target to start; Use after pathing complete
 function astar:backtrace()
 	local path = {self.target}
 	while path[#path] ~= self.start do
@@ -49,6 +46,7 @@ function astar:backtrace()
 	return npath
 end
 
+---Runs Single step through the astar
 function astar:step()
 	if #self.openList > 0 and not self.complete then
 		-- Sort the openList based on the f score
@@ -91,26 +89,15 @@ function astar:step()
 	end
 end
 
-function astar:getUnvisitedNeighbors(cell)
-	local neighbors = cell:getNeighbors()
-	local unvisited = {}
-	for _, neighbor in ipairs(neighbors) do
-		if not self.visited[neighbor] then
-			table.insert(unvisited, neighbor)
-		end
-	end
-	return unvisited
-end
-
-function astar:distance(cell1, cell2)
+---The distance between two tiles
+function astar:distance(tile1, tile2)
 	return 1
 end
 
-function astar:heuristic(cell, target)
-	-- Implement the heuristic function to estimate the distance from cell to target
-	-- Common choices are Euclidean distance, Manhattan distance, etc.
-	local dx = math.abs(cell.x - target.x)
-	local dy = math.abs(cell.y - target.y)
+---The distance to target; Without square root for efficiency.
+function astar:heuristic(tile, target)
+	local dx = math.abs(tile.x - target.x)
+	local dy = math.abs(tile.y - target.y)
 	return dx + dy
 end
 
