@@ -1,12 +1,12 @@
 local HERE = (...):gsub('%.[^%.]+$', '')
-local Pathfinding = require(HERE..".pathfinding")
+local Pathfinder = require(HERE..".pathfinder")
 
-local bfs = setmetatable({}, { __index = Pathfinding })
+local bfs = setmetatable({}, { __index = Pathfinder })
 bfs.__index = bfs
 bfs._VERSION = "0.0.3"
 
 function bfs.new(grid, startTile, target)
-	local self = setmetatable(Pathfinding.new(grid, startTile, target), bfs)
+	local self = setmetatable(Pathfinder.new(grid, startTile, target), bfs)
 	self.queue = {startTile}
 	return self
 end

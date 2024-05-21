@@ -1,12 +1,12 @@
 local HERE = (...):gsub('%.[^%.]+$', '')
-local Pathfinding = require(HERE..".pathfinding")
+local Pathfinder = require(HERE..".pathfinder")
 
-local dfs = setmetatable({}, { __index = Pathfinding })
+local dfs = setmetatable({}, { __index = Pathfinder })
 dfs.__index = dfs
 dfs._VERSION = "0.0.3"
 
 function dfs.new(grid, startTile, target)
-	local self = setmetatable(Pathfinding.new(grid, startTile, target), dfs)
+	local self = setmetatable(Pathfinder.new(grid, startTile, target), dfs)
 	self.stack = {startTile}
 	return self
 end
