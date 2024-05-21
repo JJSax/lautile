@@ -5,7 +5,6 @@ Pathfinder._VERSION = "0.0.2"
 function Pathfinder.new(grid, startTile, target)
 	local self = setmetatable({}, Pathfinder)
 	self.grid = grid
-	self.stack = {startTile}
 	self.target = target
 	self.visited = {}
 	self.complete = false

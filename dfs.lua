@@ -6,7 +6,9 @@ dfs.__index = dfs
 dfs._VERSION = "0.0.3"
 
 function dfs.new(grid, startTile, target)
-	return setmetatable(Pathfinding.new(grid, startTile, target), dfs)
+	local self = setmetatable(Pathfinding.new(grid, startTile, target), dfs)
+	self.stack = {startTile}
+	return self
 end
 
 local function __NULL__(...) end
