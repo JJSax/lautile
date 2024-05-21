@@ -18,6 +18,7 @@ function dfs:step()
 	if #self.stack > 0 and not self.complete then
 		local currentCell = table.remove(self.stack)
 		self.currentTile = currentCell -- the tile object
+		self:exploreTile(currentCell)
 		if self:isTarget(currentCell) then
 			self.complete = true
 			return self.visited
@@ -27,7 +28,6 @@ function dfs:step()
 			table.insert(self.stack, currentCell)
 			local nextCell = neighbors[love.math.random(1, #neighbors)]
 			self.visited[nextCell] = true
-			self:exploreTile(nextCell)
 			table.insert(self.stack, nextCell)
 		else
 			self:markDeadEnd(currentCell)
