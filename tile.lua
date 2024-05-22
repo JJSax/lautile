@@ -14,7 +14,6 @@ function Tile.new(grid, x, y)
 end
 
 -- Default neighbor methods assume a lattice graph, though may still be useful
-
 function Tile:getNeighbors()
 	return {
 		self.grid:isValidCell(self.x, self.y - 1),

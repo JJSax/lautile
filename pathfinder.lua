@@ -1,6 +1,6 @@
 local Pathfinder = {}
 Pathfinder.__index = Pathfinder
-Pathfinder._VERSION = "0.0.5"
+Pathfinder._VERSION = "0.0.6"
 
 ---Common initialization of pathfinding algorithms.
 function Pathfinder.new(grid, startTile, target)
@@ -8,7 +8,7 @@ function Pathfinder.new(grid, startTile, target)
 	self.grid = grid
 	self.start = startTile
 	self.target = target
-	self.visited = {}
+	self.visited = {[startTile] = true}
 	self.complete = false
 	self.currentTile = startTile
 	self.path = {}
