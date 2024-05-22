@@ -1,84 +1,88 @@
-----------------------------------------
--- Desc: Generic Grid Library.  This creates a rectangular grid.
--- By: JJSax
--- Date: 3/1/2023
-----------------------------------------
 
-
----@class Grid
----@field width number
----@field height number
----@field _is2D boolean
----@field clear function
----@field place function
----@field setup function
----@field draw function
----@field isCheck function
+---@class Luatile
+---@field tiles table<number, table<number, LTTile>> A 2D array of tiles.
+---@field defaultTile LTTile The default tile to use when none is specified.
+---@field tileList LTTile[] A list of all tiles.
+---@field strict boolean Whether new cell creations can happen.
+---@field _VERSION string The version of the Grid class.
 local Grid = {}
 Grid.__index = Grid
-Grid._version = "0.1.23"
+Grid._VERSION = "2.0.6"
 
----@class Cell
----@field x number
----@field y number
----@field grid Grid
-local Cell = {}
-Cell.__index = Cell
+local HERE = (...):gsub('%.[^%.]+$', '')
+local Tile = require(HERE .. ".tile")
 
----@param width number How many cells horizontally
----@param height number How many cells vertically
----@param properties? table
----@return Grid
-function Grid.new(width, height, properties)
+local function expect(p, exp, name)
+	if type(p) ~= exp then
+		error('param "' .. name .. '" expects type(' .. exp .. ').  Got: ' .. type(p), 2)
+	end
+end
 
-	--@ properties.cellWidth/cellHeight is predefined as the 2d space taken by a cell
+function Grid.__call(self, x, y)
+	expect(x, "number", "x")
+	expect(y, "number", "y")
 
-	properties = properties or {}
-	local self = setmetatable({}, Grid)
-	self.width = width
-	self.height = height
-	self.cellWidth = properties.cellWidth or properties.squareCellSize
-	self.cellHeight = properties.cellHeight or properties.squareCellSize
-	self._is2D = self.cellWidth and true or false
+	if self.tiles[x] and self.tiles[x][y] then
+		return self.tiles[x][y], true
+	end
+
+	assert(not self.strict, "Grid is strict; You cannot index cells that don't exist.")
+
+	local t = self.defaultTile.new(self, x, y)
+	if not self.tiles[x] then self.tiles[x] = {} end
+	self.tiles[x][y] = t
+
+	table.insert(self.tileList, t)
+
+	return self.tiles[x][y], false
+end
+
+function Grid.new(tile, width, height, strict)
+	local default = tile or Tile
+	assert(default.new, "Tile object passed require a constructor called 'new'")
+	local self = setmetatable({
+		tiles = {},
+		defaultTile = default,
+		tileList = {}
+	}, Grid)
+
+	if not width then return self end
+	assert(height, "Cannot have a grid width without a grid height.")
 
 	for x = 1, width do
-		self[x] = {}
 		for y = 1, height do
-			self[x][y] = self:newCell(x, y, properties)
+			self(x, y)
 		end
 	end
+
+	self.strict = strict -- after so cell creation can happen
 
 	return self
 end
 
----@param x integer The x index in Grid
----@param y integer The y index in Grid
----@return Cell
-function Grid:newCell(x, y, properties)
+function Grid:deleteTile(x, y)
+	assert(not self.strict, "Attemt to delete a protected tile; strict mode on.")
+	local t = self:isValidCell(x, y)
+	assert(t, "Attempt to delete a non-existent tile.")
 
-	-- local cWidth = properties.cellWidth
-	-- local cHeight = properties.cellHeight
+	for k,v in pairs(self.tileList) do --! O(n); will need to rework this
+		if v == t then
+			table.remove(self.tileList, k)
+		end
+	end
 
-	return setmetatable({
-		x = x, y = y, grid = self
-	}, Cell)
-
+	self.tiles[x][y] = nil
 end
 
----@param x integer The x index in Grid
----@param y integer The y index in Grid
----@return boolean # If the cell exists in the Grid
+--- Checks if the cell at (x[, y]) is valid.
+--- @param x number The x-coordinate.
+--- @param y number The y-coordinate.
+--- @return table|nil> The tile if it exists, otherwise nil.
 function Grid:isValidCell(x, y)
-	if type(x) == "table" then return x.grid == self end
-	return x >= 1 and x <= self.width and y >= 1 and y <= self.height
+	return self.tiles[x] and self.tiles[x][y]
 end
 
----@param x integer The x index in Grid
----@param y integer The y index in Grid
----@param diagonals boolean? Whether or not to include diagonal positions from the position given.
----@return Cell[] adjacent The ajacent tiles to the given position
 function Grid:getAdjacent(x, y, diagonals)
-
 	-- loop through adjacent cells to x, y
 	-- if diagonals is true, add diagonals
 
@@ -88,104 +92,44 @@ function Grid:getAdjacent(x, y, diagonals)
 			if lx == 0 and ly == 0 then -- do nothing
 			elseif self:isValidCell(x + lx, y + ly) and
 			((diagonals and lx ~= 0 and ly ~= 0) or (lx==0 or ly==0)) then
-				table.insert(adjacent, self[x + lx][y + ly])
+				table.insert(adjacent, self.tiles[x + lx][y + ly])
 			end
 		end
-	end return adjacent
-
-end
-
----@return function iterable
-function Grid:iterate()
-	local i = 0
-	return function()
-		i = i + 1
-		if i <= self.width * self.height then
-			local x, y = (i-1) % self.width + 1, -- x
-						 math.ceil(i/self.width) -- y
-			return self[x][y], x, y
-		end
 	end
+	return adjacent
 end
 
----@param x integer The x index in Grid
----@param y integer The y index in Grid
----@param diagonals boolean? Whether or not to include diagonal positions from the position given.
----@return function iterable
+function Grid:iterate()
+	return coroutine.wrap(function()
+		for _, xt in pairs(self.tiles) do
+			for _, tile in pairs(xt) do
+				coroutine.yield(tile, tile.x, tile.y)
+			end
+		end
+	end)
+end
+
 function Grid:iterateAdjacent(x, y, diagonals)
 	local adjacent = self:getAdjacent(x, y, diagonals)
 	local i = 0
 	return function()
 		i = i + 1
 		if i <= #adjacent then
-			return self[adjacent[i].x][adjacent[i].y], adjacent[i].x, adjacent[i].y
+			return adjacent[i], adjacent[i].x, adjacent[i].y
 		end
 	end
 end
 
----@return integer, integer # The x, y index of the random location
+function Grid:unpack(tile)
+	return tile.x, tile.y
+end
+
 function Grid:getRandomLocation()
-    return math.random(self.width), math.random(self.height)
+	return self:unpack(self.tileList[math.random(#self.tileList)])
 end
 
----@return Cell The random cell object
 function Grid:getRandomCell()
-	local x, y = self:getRandomLocation()
-	return self[x][y]
-end
-
----@param x integer The x index in Grid
----@param y integer The y index in Grid
-function Grid:coordsToIndex(x, y)
-	return x + (y - 1) * self.width
-end
-
----@param x integer The x index in Grid
----@param y integer The y index in Grid
-function Grid:depthFirstSearch(x, y)
-    local stack = {
-        { x = x, y = y }
-    }
-    local visited = {}
-    while #stack > 0 do
-        local cell = table.remove(stack)
-        if not visited[cell.x] then
-            visited[cell.x] = {}
-        end
-        if not visited[cell.x][cell.y] then
-            visited[cell.x][cell.y] = true
-            local adjacent = self:getAdjacent(cell.x, cell.y)
-            for i = 1, #adjacent do
-                table.insert(stack, adjacent[i])
-            end
-        end
-    end
-    return visited
-end
-
---------------------
------ For _is2D ----
---------------------
-
----@param x integer The x index in Grid
----@param y integer The y index in Grid
-function Grid:cellFromScreen(x, y)
-	-- x, y is point in window to check
-	-- this will *not* account for translation.
-	assert(self._is2D, "Requires 2D cells. Pass in width and height into grid.new()")
-	local ox, oy = math.ceil(x / self.cellWidth), math.ceil(y / self.cellHeight)
-	return self:isValidCell(ox, oy) and self[ox][oy] or false
-end
-
-function Cell:getLocation()
-	return (self.x - 1) * self.grid.cellWidth, (self.y - 1) * self.grid.cellHeight
-end
-
-function Cell:getPosition() return self.x, self.y end
-
-function Grid:setSize(w, h)
-	self.cellWidth  = w
-	self.cellHeight = h
+	return self.tileList[math.random(#self.tileList)]
 end
 
 return Grid
