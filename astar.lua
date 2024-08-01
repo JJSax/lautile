@@ -3,7 +3,7 @@ local Pathfinder = require(HERE..".pathfinder")
 
 local astar = setmetatable({}, { __index = Pathfinder })
 astar.__index = astar
-astar._VERSION = "0.0.5"
+astar._VERSION = "0.0.6"
 astar.MinHeap = nil -- Pass Tablua's MinHeap (https://github.com/JJSax/Tablua) before use.
 
 ---Create the astar
