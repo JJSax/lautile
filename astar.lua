@@ -4,12 +4,15 @@ local Pathfinder = require(HERE..".pathfinder")
 local astar = setmetatable({}, { __index = Pathfinder })
 astar.__index = astar
 astar._VERSION = "0.0.5"
+astar.MinHeap = nil -- Pass Tablua's MinHeap (https://github.com/JJSax/Tablua) before use.
 
 ---Create the astar
 function astar.new(grid, startTile, target)
+	assert(type(astar.MinHeap) == "table" and astar.MinHeap.pop, "Please pass the minHeap library from Tablua before astar use.")
+
 	local self = setmetatable(Pathfinder.new(grid, startTile, target), astar)
 	self.parents = {}
-	self.openList = {startTile} -- Tiles to be visited
+	self.openList = astar.MinHeap.new({startTile}, function(a, b) return self.fScore[a] < self.fScore[b] end) -- Tiles to be visited
 	self.openSet = { -- This is the set for O(1) lookup
 		[startTile] = true
 	}
@@ -49,9 +52,7 @@ end
 ---Runs Single step through the astar
 function astar:step()
 	if #self.openList > 0 and not self.complete then
-		-- Sort the openList based on the f score
-		table.sort(self.openList, function(a, b) return self.fScore[a] < self.fScore[b] end)
-		local currentCell = table.remove(self.openList, 1)
+		local currentCell = self.openList:pop()
 		self.openSet[currentCell] = nil -- Remove from set
 		self.currentTile = currentCell -- the tile object
 		self:exploreTile(currentCell)
@@ -71,7 +72,7 @@ function astar:step()
 				self.fScore[neighbor] = self.gScore[neighbor] + self:heuristic(neighbor, self.target)
 
 				if not self.openSet[neighbor] then
-					table.insert(self.openList, neighbor)
+					self.openList:insert(neighbor)
 					self.openSet[neighbor] = true
 				end
 			end
