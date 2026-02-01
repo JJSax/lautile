@@ -1,4 +1,3 @@
-
 ---@class Luatile
 ---@field tiles table<number, table<number, LTTile>> A 2D array of tiles.
 ---@field defaultTile LTTile The default tile to use when none is specified.
@@ -28,7 +27,7 @@ function Grid.__call(self, x, y)
 
 	assert(not self.strict, "Grid is strict; You cannot index cells that don't exist.")
 
-	local t = self.defaultTile.new(self, x, y)
+	local t = self.defaultTile.new(x, y)
 	if not self.tiles[x] then self.tiles[x] = {} end
 	self.tiles[x][y] = t
 
@@ -65,7 +64,7 @@ function Grid:deleteTile(x, y)
 	local t = self:isValidCell(x, y)
 	assert(t, "Attempt to delete a non-existent tile.")
 
-	for k,v in pairs(self.tileList) do --! O(n); will need to rework this
+	for k, v in pairs(self.tileList) do --! O(n); will need to rework this
 		if v == t then
 			table.remove(self.tileList, k)
 		end
@@ -91,7 +90,7 @@ function Grid:getAdjacent(x, y, diagonals)
 		for ly = -1, 1 do
 			if lx == 0 and ly == 0 then -- do nothing
 			elseif self:isValidCell(x + lx, y + ly) and
-			((diagonals and lx ~= 0 and ly ~= 0) or (lx==0 or ly==0)) then
+				((diagonals and lx ~= 0 and ly ~= 0) or (lx == 0 or ly == 0)) then
 				table.insert(adjacent, self.tiles[x + lx][y + ly])
 			end
 		end
@@ -130,6 +129,66 @@ end
 
 function Grid:getRandomCell()
 	return self.tileList[math.random(#self.tileList)]
+end
+
+
+
+local neighbors = {
+	{ x = 0,  y = -1 }, -- Top
+	{ x = 1,  y = 0 }, -- Right
+	{ x = 0,  y = 1 }, -- Bottom
+	{ x = -1, y = 0 }, -- Left
+	{ x = 1,  y = -1 }, -- Top-right
+	{ x = 1,  y = 1 }, -- Bottom-right
+	{ x = -1, y = 1 }, -- Bottom-left
+	{ x = -1, y = -1 }, -- Top-left
+}
+
+function Grid:getNeighbors(x, y)
+	assert(self:isValidCell(x, y), "Invalid cell coordinates")
+	local out = {}
+	for i = 1, 4 do
+		if self:isValidCell(x + neighbors[i].x, y + neighbors[i].y) then
+			table.insert(out, self(x + neighbors[i].x, y + neighbors[i].y))
+		end
+	end
+	return out
+end
+
+function Grid:getDiagonalNeighbors(x, y)
+	assert(self:isValidCell(x, y), "Invalid cell coordinates")
+	local out = {}
+	for i = 5, 8 do
+		if self:isValidCell(x + neighbors[i].x, y + neighbors[i].y) then
+			table.insert(out, self(x + neighbors[i].x, y + neighbors[i].y))
+		end
+	end
+	return out
+end
+
+function Grid:getAllNeighbors(x, y)
+	assert(self:isValidCell(x, y), "Invalid cell coordinates")
+	local out = {}
+	for i = 1, 8 do
+		if self:isValidCell(x + neighbors[i].x, y + neighbors[i].y) then
+			table.insert(out, self(x + neighbors[i].x, y + neighbors[i].y))
+		end
+	end
+	return out
+end
+
+function Grid:getTileNeighbors(tile)
+	return self:getNeighbors(tile.x, tile.y)
+end
+
+function Grid:getTileDiagonalNeighbors(tile)
+	assert(self:isValidCell(tile.x, tile.y), "Invalid cell coordinates")
+	return self:getDiagonalNeighbors(tile.x, tile.y)
+end
+
+function Grid:getTileAllNeighbors(tile)
+	assert(self:isValidCell(tile.x, tile.y), "Invalid cell coordinates")
+	return self:getAllNeighbors(tile.x, tile.y)
 end
 
 return Grid
