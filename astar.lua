@@ -62,7 +62,7 @@ function astar:step()
 			return self:backtrace()
 		end
 
-		local neighbors = currentCell:getNeighbors()
+		local neighbors = currentCell:getNeighbors(self.grid)
 		for _, neighbor in ipairs(neighbors) do
 			local tentative_gScore = self.gScore[currentCell] + self:distance(currentCell, neighbor)
 

@@ -27,7 +27,7 @@ function Grid.__call(self, x, y)
 
 	assert(not self.strict, "Grid is strict; You cannot index cells that don't exist.")
 
-	local t = self.defaultTile.new(self, x, y)
+	local t = self.defaultTile.new(x, y)
 	if not self.tiles[x] then self.tiles[x] = {} end
 	self.tiles[x][y] = t
 
@@ -134,13 +134,13 @@ end
 
 
 local neighbors = {
-	{ x = 0,  y = -1 }, -- Top
-	{ x = 1,  y = 0 }, -- Right
-	{ x = 0,  y = 1 }, -- Bottom
-	{ x = -1, y = 0 }, -- Left
-	{ x = 1,  y = -1 }, -- Top-right
-	{ x = 1,  y = 1 }, -- Bottom-right
-	{ x = -1, y = 1 }, -- Bottom-left
+	{ x =  0, y = -1 }, -- Top
+	{ x =  1, y =  0 }, -- Right
+	{ x =  0, y =  1 }, -- Bottom
+	{ x = -1, y =  0 }, -- Left
+	{ x =  1, y = -1 }, -- Top-right
+	{ x =  1, y =  1 }, -- Bottom-right
+	{ x = -1, y =  1 }, -- Bottom-left
 	{ x = -1, y = -1 }, -- Top-left
 }
 
@@ -148,8 +148,9 @@ function Grid:getNeighbors(x, y)
 	assert(self:isValidCell(x, y), "Invalid cell coordinates")
 	local out = {}
 	for i = 1, 4 do
-		if self:isValidCell(x + neighbors[i].x, y + neighbors[i].y) then
-			table.insert(out, self(x + neighbors[i].x, y + neighbors[i].y))
+		local cell = self:isValidCell(x + neighbors[i].x, y + neighbors[i].y)
+		if cell then
+			table.insert(out, cell)
 		end
 	end
 	return out
@@ -159,8 +160,9 @@ function Grid:getDiagonalNeighbors(x, y)
 	assert(self:isValidCell(x, y), "Invalid cell coordinates")
 	local out = {}
 	for i = 5, 8 do
-		if self:isValidCell(x + neighbors[i].x, y + neighbors[i].y) then
-			table.insert(out, self(x + neighbors[i].x, y + neighbors[i].y))
+		local cell = self:isValidCell(x + neighbors[i].x, y + neighbors[i].y)
+		if cell then
+			table.insert(out, cell)
 		end
 	end
 	return out
@@ -170,8 +172,9 @@ function Grid:getAllNeighbors(x, y)
 	assert(self:isValidCell(x, y), "Invalid cell coordinates")
 	local out = {}
 	for i = 1, 8 do
-		if self:isValidCell(x + neighbors[i].x, y + neighbors[i].y) then
-			table.insert(out, self(x + neighbors[i].x, y + neighbors[i].y))
+		local cell = self:isValidCell(x + neighbors[i].x, y + neighbors[i].y)
+		if cell then
+			table.insert(out, cell)
 		end
 	end
 	return out

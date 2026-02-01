@@ -40,7 +40,7 @@ function bfs:step()
 			self:backtrace()
 			return self.visited
 		end
-		if #currentCell:getNeighbors() == 1 then self:markDeadEnd(currentCell) end
+		if #currentCell:getNeighbors(self.grid) == 1 then self:markDeadEnd(currentCell) end
 		local neighbors = self:getUnvisitedNeighbors(currentCell)
 		for _, nextCell in ipairs(neighbors) do
 			self.visited[nextCell] = true

@@ -34,7 +34,7 @@ end
 
 --- returns all the tiles that tile:getNeighbors() passes, then culls ones that were visited.
 function Pathfinder:getUnvisitedNeighbors(cell)
-	local neighbors = cell:getNeighbors()
+	local neighbors = cell:getNeighbors(self.grid)
 	local unvisited = {}
 	for _, neighbor in ipairs(neighbors) do
 		if not self.visited[neighbor] then
