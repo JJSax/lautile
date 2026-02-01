@@ -27,7 +27,7 @@ function Grid.__call(self, x, y)
 
 	assert(not self.strict, "Grid is strict; You cannot index cells that don't exist.")
 
-	local t = self.defaultTile.new(x, y)
+	local t = self.defaultTile.new(self, x, y)
 	if not self.tiles[x] then self.tiles[x] = {} end
 	self.tiles[x][y] = t
 
