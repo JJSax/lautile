@@ -6,7 +6,7 @@
 ---@field _VERSION string The version of the Grid class.
 local Grid = {}
 Grid.__index = Grid
-Grid._VERSION = "2.0.6"
+Grid._VERSION = "2.0.7"
 
 local HERE = (...):gsub('%.[^%.]+$', '')
 local Tile = require(HERE .. ".tile")
@@ -40,6 +40,8 @@ function Grid.new(tile, width, height, strict)
 	local default = tile or Tile
 	assert(default.new, "Tile object passed require a constructor called 'new'")
 	local self = setmetatable({
+		width = width,
+		height = height,
 		tiles = {},
 		defaultTile = default,
 		tileList = {}
